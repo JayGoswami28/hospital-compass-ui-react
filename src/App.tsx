@@ -10,6 +10,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // Pages
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import PatientDetails from "./pages/PatientDetails";
+import PatientSummary from "./pages/PatientSummary";
 import RoleManagement from "./pages/RoleManagement";
 import VaccineManagement from "./pages/VaccineManagement";
 import SlotManagement from "./pages/SlotManagement";
@@ -42,6 +44,16 @@ const App = () => (
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/patient/:id" element={
+              <ProtectedRoute>
+                <PatientDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/patient/:id/summary" element={
+              <ProtectedRoute>
+                <PatientSummary />
               </ProtectedRoute>
             } />
             <Route path="/roles" element={

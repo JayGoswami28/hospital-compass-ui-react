@@ -1,227 +1,156 @@
 
 import React, { useState } from 'react';
-import { Plus, Edit, Trash2, Clock } from 'lucide-react';
+import { Clock, Save } from 'lucide-react';
 import Layout from '../components/Layout/Layout';
 import Card from '../components/Common/Card';
-import { mockSlots } from '../data/mockData';
 
 const SlotManagement: React.FC = () => {
-  const [slots, setSlots] = useState(mockSlots);
-  const [showForm, setShowForm] = useState(false);
-  const [editingSlot, setEditingSlot] = useState<any>(null);
-  const [formData, setFormData] = useState({ 
-    doctor: '', 
-    date: '', 
-    time: '',
-    status: 'Available'
+  const [slots, setSlots] = useState({
+    morning: {
+      '09:00': false,
+      '10:00': true,
+      '11:00': false,
+      '12:00': true
+    },
+    afternoon: {
+      '14:00': false,
+      '15:00': true,
+      '16:00': false,
+      '17:00': true,
+      '18:00': false
+    }
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (editingSlot) {
-      setSlots(slots.map(slot => 
-        slot.id === editingSlot.id 
-          ? { ...slot, ...formData }
-          : slot
-      ));
-    } else {
-      setSlots([...slots, { 
-        id: slots.length + 1, 
-        ...formData
-      }]);
-    }
-    setFormData({ doctor: '', date: '', time: '', status: 'Available' });
-    setShowForm(false);
-    setEditingSlot(null);
+  const handleSlotToggle = (shift: 'morning' | 'afternoon', time: string) => {
+    setSlots(prev => ({
+      ...prev,
+      [shift]: {
+        ...prev[shift],
+        [time]: !prev[shift][time as keyof typeof prev[typeof shift]]
+      }
+    }));
   };
 
-  const handleEdit = (slot: any) => {
-    setEditingSlot(slot);
-    setFormData({ 
-      doctor: slot.doctor, 
-      date: slot.date, 
-      time: slot.time,
-      status: slot.status
-    });
-    setShowForm(true);
+  const handleSaveChanges = () => {
+    console.log('Saving slot changes:', slots);
+    // Here you would typically save to your backend
+    alert('Slot changes saved successfully!');
   };
 
-  const handleDelete = (id: number) => {
-    setSlots(slots.filter(slot => slot.id !== id));
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Available': return 'bg-green-100 text-green-800';
-      case 'Booked': return 'bg-blue-100 text-blue-800';
-      case 'Cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const formatTime = (time: string) => {
+    const hour = parseInt(time.split(':')[0]);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return `${displayHour}:${time.split(':')[1]} ${ampm}`;
   };
 
   return (
     <Layout>
       <div className="space-y-6">
+        {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">Slot Management</h1>
           <button
-            onClick={() => setShowForm(true)}
-            className="bg-medical-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
+            onClick={handleSaveChanges}
+            className="inline-flex items-center px-4 py-2 bg-medical-blue text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            <Plus className="w-4 h-4" />
-            <span>Add Slot</span>
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
           </button>
         </div>
 
-        {showForm && (
-          <Card title={editingSlot ? 'Edit Slot' : 'Add New Slot'}>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Doctor
+        {/* Morning Shift */}
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center mb-6">
+              <Clock className="w-5 h-5 text-medical-blue mr-2" />
+              <h2 className="text-lg font-semibold text-gray-900">Morning Shift</h2>
+              <span className="ml-2 text-sm text-gray-500">(9:00 AM - 12:00 PM)</span>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {Object.entries(slots.morning).map(([time, isActive]) => (
+                <div key={time} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <span className="font-medium text-gray-900">{formatTime(time)}</span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={() => handleSlotToggle('morning', time)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-medical-blue"></div>
                   </label>
-                  <select
-                    required
-                    value={formData.doctor}
-                    onChange={(e) => setFormData({ ...formData, doctor: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-                  >
-                    <option value="">Select Doctor</option>
-                    <option value="Dr. Sarah Wilson">Dr. Sarah Wilson</option>
-                    <option value="Dr. Michael Brown">Dr. Michael Brown</option>
-                    <option value="Dr. Emily Davis">Dr. Emily Davis</option>
-                    <option value="Dr. James Miller">Dr. James Miller</option>
-                  </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Time
-                  </label>
-                  <input
-                    type="time"
-                    required
-                    value={formData.time}
-                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-                  >
-                    <option value="Available">Available</option>
-                    <option value="Booked">Booked</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex space-x-4">
-                <button
-                  type="submit"
-                  className="bg-medical-blue text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                >
-                  {editingSlot ? 'Update' : 'Add'} Slot
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setEditingSlot(null);
-                    setFormData({ doctor: '', date: '', time: '', status: 'Available' });
-                  }}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </Card>
-        )}
+              ))}
+            </div>
+          </div>
+        </Card>
 
-        <Card title="Appointment Slots">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Slot ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Doctor
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Time
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {slots.map((slot) => (
-                  <tr key={slot.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      SL{slot.id.toString().padStart(3, '0')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {slot.doctor}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {slot.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {slot.time}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(slot.status)}`}>
-                        {slot.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                      <button
-                        onClick={() => handleEdit(slot)}
-                        className="text-medical-blue hover:text-blue-700"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(slot.id)}
-                        className="text-red-600 hover:text-red-800"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Afternoon Shift */}
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center mb-6">
+              <Clock className="w-5 h-5 text-medical-blue mr-2" />
+              <h2 className="text-lg font-semibold text-gray-900">Afternoon Shift</h2>
+              <span className="ml-2 text-sm text-gray-500">(2:00 PM - 6:00 PM)</span>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+              {Object.entries(slots.afternoon).map(([time, isActive]) => (
+                <div key={time} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                  <span className="font-medium text-gray-900">{formatTime(time)}</span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={() => handleSlotToggle('afternoon', time)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-medical-blue"></div>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        {/* Summary */}
+        <Card title="Active Slots Summary">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-medium text-gray-900 mb-3">Morning Shift Active Slots</h3>
+              <div className="space-y-2">
+                {Object.entries(slots.morning)
+                  .filter(([, isActive]) => isActive)
+                  .map(([time]) => (
+                    <div key={time} className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-gray-700">{formatTime(time)}</span>
+                    </div>
+                  ))}
+                {Object.entries(slots.morning).filter(([, isActive]) => isActive).length === 0 && (
+                  <p className="text-sm text-gray-500">No active slots</p>
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-medium text-gray-900 mb-3">Afternoon Shift Active Slots</h3>
+              <div className="space-y-2">
+                {Object.entries(slots.afternoon)
+                  .filter(([, isActive]) => isActive)
+                  .map(([time]) => (
+                    <div key={time} className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-sm text-gray-700">{formatTime(time)}</span>
+                    </div>
+                  ))}
+                {Object.entries(slots.afternoon).filter(([, isActive]) => isActive).length === 0 && (
+                  <p className="text-sm text-gray-500">No active slots</p>
+                )}
+              </div>
+            </div>
           </div>
         </Card>
       </div>

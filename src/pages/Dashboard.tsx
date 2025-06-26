@@ -1,14 +1,15 @@
 
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
-import Table from '../components/Common/Table';
 import Card from '../components/Common/Card';
 import { mockPatients } from '../data/mockData';
 import { useAuth } from '../context/AuthContext';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
@@ -22,32 +23,24 @@ const Dashboard: React.FC = () => {
   const endIndex = startIndex + rowsPerPage;
   const currentPatients = filteredPatients.slice(startIndex, endIndex);
 
-  const columns = [
-    { key: 'id', label: 'Case ID' },
-    { key: 'name', label: 'Patient Name' },
-    { key: 'mobile', label: 'Mobile' },
-    { key: 'dob', label: 'DOB' },
-    { key: 'age', label: 'Age' },
-    { key: 'type', label: 'Type' },
-    { 
-      key: 'payment', 
-      label: 'Payment',
-      render: (value: string) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-          value === 'Cash' ? 'bg-green-100 text-green-800' :
-          value === 'Online' ? 'bg-blue-100 text-blue-800' :
-          'bg-purple-100 text-purple-800'
-        }`}>
-          {value}
-        </span>
-      )
-    },
-    { key: 'amount', label: 'Amount' }
-  ];
+  const calculateAge = (dob: string) => {
+    const birthDate = new Date(dob.split('/').reverse().join('-'));
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      return age - 1;
+    }
+    return age;
+  };
 
-  const handleView = (patient: any) => {
-    console.log('Viewing patient:', patient);
-    // Implement patient details modal or navigation
+  const handlePatientClick = (patientId: string) => {
+    navigate(`/patient/${patientId}`);
+  };
+
+  const handleViewDetails = (patientId: string) => {
+    navigate(`/patient/${patientId}/summary`);
   };
 
   const getPageTitle = () => {
@@ -117,11 +110,71 @@ const Dashboard: React.FC = () => {
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <Table 
-              columns={columns}
-              data={currentPatients}
-              onView={handleView}
-            />
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Case ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Patient Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Mobile
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    DOB
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Age
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {currentPatients.map((patient) => (
+                  <tr key={patient.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {patient.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={() => handlePatientClick(patient.id)}
+                        className="text-medical-blue hover:text-blue-700 font-medium cursor-pointer"
+                      >
+                        {patient.name}
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {patient.mobile}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {patient.dob}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {calculateAge(patient.dob)} years
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {patient.type}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <button
+                        onClick={() => handleViewDetails(patient.id)}
+                        className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-medical-blue hover:bg-blue-700 transition-colors"
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        View
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination */}
