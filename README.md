@@ -1,73 +1,222 @@
-# Welcome to your Lovable project
 
-## Project info
+# Hospital Management System
 
-**URL**: https://lovable.dev/projects/fee02cb0-27ba-496a-9084-944876e4922f
+A modern, comprehensive Hospital Management System built with React, TypeScript, and Tailwind CSS. This system provides a complete solution for managing hospital operations including patient records, appointments, staff management, and more.
 
-## How can I edit this code?
+## 🚀 Features
 
-There are several ways of editing your application.
+### Core Functionality
+- **Admin Dashboard** - Overview of hospital operations with patient statistics and payment summaries
+- **Patient Management** - Comprehensive patient records with search and filtering
+- **Appointment Booking** - Schedule and manage patient appointments with calendar integration
+- **Staff Management** - User roles, permissions, and staff information
+- **Bed Management** - Track bed availability and patient assignments
+- **Vaccine Management** - Inventory tracking with low-stock alerts
+- **Receptionist Dashboard** - Quick check-in and appointment management
 
-**Use Lovable**
+### Authentication & Security
+- Secure login system with session management
+- Role-based access control
+- Password reset functionality
+- Protected routes and user authentication
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fee02cb0-27ba-496a-9084-944876e4922f) and start prompting.
+### User Interface
+- **Responsive Design** - Works seamlessly across desktop, tablet, and mobile devices
+- **Modern UI** - Clean, professional interface with medical-grade color scheme
+- **Accessibility** - WCAG 2.1 compliant with proper contrast and keyboard navigation
+- **Interactive Elements** - Hover effects, transitions, and micro-interactions
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ Technology Stack
 
-**Use your preferred IDE**
+- **Frontend Framework**: React 18 with TypeScript
+- **Styling**: Tailwind CSS with custom medical color palette
+- **Icons**: Lucide React for consistent iconography
+- **Routing**: React Router v6 with protected routes
+- **State Management**: React Context API
+- **Build Tool**: Vite for fast development and building
+- **UI Components**: Custom components with shadcn/ui integration
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 📦 Installation & Setup
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
+- Node.js (version 16 or higher)
+- npm or yarn package manager
 
-Follow these steps:
+### Getting Started
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd hospital-management-system
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+3. **Start the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+4. **Access the application**
+   - Open your browser and navigate to `http://localhost:8080`
+   - Use the demo credentials to log in:
+     - **Email**: admin@hospital.com
+     - **Password**: admin123
+
+### Building for Production
+
+```bash
+npm run build
+# or
+yarn build
 ```
 
-**Edit a file directly in GitHub**
+The built files will be available in the `dist` directory.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🏗️ Project Structure
 
-**Use GitHub Codespaces**
+```
+src/
+├── components/           # Reusable UI components
+│   ├── Layout/          # Layout components (Sidebar, Header)
+│   └── Common/          # Common components (Table, Card)
+├── context/             # React Context providers
+├── data/                # Mock data and constants
+├── pages/               # Application pages/routes
+├── hooks/               # Custom React hooks
+└── lib/                 # Utility functions
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🎨 Design System
 
-## What technologies are used for this project?
+### Color Palette
+- **Primary Blue**: #3b82f6 (Medical blue for primary actions)
+- **Light Purple**: #f3e8ff (Header backgrounds and highlights)
+- **Success Green**: #10b981 (Success states and available items)
+- **Warning Yellow**: #f59e0b (Warning states and low stock)
+- **Error Red**: #ef4444 (Error states and critical alerts)
+- **Neutral Gray**: #f8fafc (Background and subtle elements)
 
-This project is built with:
+### Typography
+- **Primary Font**: Inter (Google Fonts)
+- Clean, readable sans-serif optimized for medical interfaces
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 📱 Responsive Breakpoints
 
-## How can I deploy this project?
+- **Mobile**: < 768px
+- **Tablet**: 768px - 1024px
+- **Desktop**: > 1024px
 
-Simply open [Lovable](https://lovable.dev/projects/fee02cb0-27ba-496a-9084-944876e4922f) and click on Share -> Publish.
+The sidebar collapses to a hamburger menu on mobile devices for optimal space utilization.
 
-## Can I connect a custom domain to my Lovable project?
+## 🔐 Authentication
 
-Yes, you can!
+The system includes a complete authentication flow:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- **Login Page** with email/password validation
+- **Forgot Password** with email reset functionality
+- **Change Password** with strength validation
+- **Session Management** with localStorage persistence
+- **Protected Routes** requiring authentication
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Demo Credentials
+- **Administrator**: admin@hospital.com / admin123
+
+## 📊 Key Pages & Features
+
+### 1. Admin Dashboard
+- Patient statistics and payment summaries
+- Searchable patient records table
+- Pagination and filtering
+- Quick action buttons
+
+### 2. Role Management
+- Create, edit, and delete user roles
+- Role descriptions and permissions
+- Search and filter functionality
+
+### 3. Vaccine Management
+- Inventory tracking with quantities
+- Expiry date monitoring
+- Low stock alerts and reorder notifications
+- Status indicators (In Stock, Low Stock, Critical)
+
+### 4. Bed Management
+- Real-time bed availability
+- Patient assignment and release
+- Room number tracking
+- Status filtering (Available, Occupied, Maintenance)
+
+### 5. Appointment Booking
+- Calendar and list view options
+- Doctor and time slot selection
+- Patient information forms
+- Appointment status tracking
+
+### 6. User Management
+- Staff profiles with role assignments
+- Contact information management
+- Search and role-based filtering
+- User creation and editing
+
+## 🧪 Mock Data
+
+The application includes comprehensive mock data for demonstration:
+- Sample patient records
+- Hospital staff information
+- Appointment schedules
+- Vaccine inventory
+- Bed assignments
+
+## 🚀 Deployment Options
+
+### Vercel (Recommended)
+1. Connect your GitHub repository to Vercel
+2. Configure build settings (auto-detected for Vite)
+3. Deploy with automatic CI/CD
+
+### Netlify
+1. Connect repository to Netlify
+2. Set build command: `npm run build`
+3. Set publish directory: `dist`
+
+### Traditional Hosting
+1. Run `npm run build`
+2. Upload `dist` folder contents to your web server
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For support, please create an issue in the GitHub repository or contact the development team.
+
+## 🔄 Future Enhancements
+
+- Integration with real backend APIs
+- Advanced reporting and analytics
+- Notification system
+- Mobile app development
+- Multi-language support
+- Advanced search capabilities
+- Export functionality for reports
+
+---
+
+Built with ❤️ for modern healthcare management
