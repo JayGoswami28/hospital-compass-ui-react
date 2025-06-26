@@ -5,12 +5,12 @@ interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: 'Admin' | 'Doctor' | 'Receptionist';
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, password: string, role: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -30,14 +30,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // Mock authentication - replace with real API call
-    if (email === 'admin@hospital.com' && password === 'admin123') {
+  const login = async (email: string, password: string, role: string): Promise<boolean> => {
+    // Mock authentication with role-based login
+    const credentials = {
+      'Admin': { email: 'admin@hospital.com', password: 'admin123', name: 'Dr. Admin' },
+      'Doctor': { email: 'doctor@hospital.com', password: 'doctor123', name: 'Dr. Sarah Wilson' },
+      'Receptionist': { email: 'receptionist@hospital.com', password: 'reception123', name: 'Lisa Brown' }
+    };
+
+    const roleCredentials = credentials[role as keyof typeof credentials];
+    
+    if (roleCredentials && email === roleCredentials.email && password === roleCredentials.password) {
       const mockUser = {
-        id: '1',
-        name: 'Dr. Admin',
-        email: 'admin@hospital.com',
-        role: 'Administrator'
+        id: role === 'Admin' ? '1' : role === 'Doctor' ? '2' : '3',
+        name: roleCredentials.name,
+        email: roleCredentials.email,
+        role: role as 'Admin' | 'Doctor' | 'Receptionist'
       };
       setUser(mockUser);
       setIsAuthenticated(true);

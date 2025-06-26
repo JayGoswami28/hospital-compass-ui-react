@@ -1,4 +1,3 @@
-
 export const mockPatients = [
   {
     id: 'CS001',
@@ -109,4 +108,13 @@ export const mockAppointments = [
     type: 'Check-up',
     status: 'Scheduled'
   }
+];
+
+export const mockSlots = [
+  { id: 1, doctor: 'Dr. Sarah Wilson', date: '2024-06-27', time: '09:00', status: 'Available' },
+  { id: 2, doctor: 'Dr. Sarah Wilson', date: '2024-06-27', time: '10:00', status: 'Booked' },
+  { id: 3, doctor: 'Dr. Michael Brown', date: '2024-06-27', time: '11:00', status: 'Available' },
+  { id: 4, doctor: 'Dr. Michael Brown', date: '2024-06-27', time: '14:00', status: 'Booked' },
+  { id: 5, doctor: 'Dr. Emily Davis', date: '2024-06-28', time: '09:30', status: 'Available' },
+  { id: 6, doctor: 'Dr. James Miller', date: '2024-06-28', time: '15:00', status: 'Cancelled' }
 ];

@@ -10,8 +10,10 @@ import {
   UserPlus, 
   Calendar,
   X,
-  Settings
+  Settings,
+  Clock
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -19,15 +21,28 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const navigationItems = [
-    { name: 'Admin Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Role Management', path: '/roles', icon: Settings },
-    { name: 'Vaccine Management', path: '/vaccines', icon: Syringe },
-    { name: 'Bed Management', path: '/beds', icon: Bed },
-    { name: 'Receptionist', path: '/receptionist', icon: UserCheck },
-    { name: 'User Management', path: '/users', icon: Users },
-    { name: 'Book Appointment', path: '/appointments', icon: Calendar },
-  ];
+  const { user } = useAuth();
+
+  const getNavigationItems = () => {
+    if (user?.role === 'Receptionist') {
+      return [
+        { name: 'Receptionist Dashboard', path: '/receptionist', icon: LayoutDashboard },
+        { name: 'Book Appointment', path: '/appointments', icon: Calendar },
+      ];
+    }
+    
+    // Admin and Doctor navigation
+    return [
+      { name: 'Admin Dashboard', path: '/dashboard', icon: LayoutDashboard },
+      { name: 'Role Management', path: '/roles', icon: Settings },
+      { name: 'Vaccine Management', path: '/vaccines', icon: Syringe },
+      { name: 'Slot Management', path: '/slots', icon: Clock },
+      { name: 'Bed Management', path: '/beds', icon: Bed },
+      { name: 'User Management', path: '/users', icon: Users },
+    ];
+  };
+
+  const navigationItems = getNavigationItems();
 
   return (
     <>

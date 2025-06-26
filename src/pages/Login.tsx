@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('Admin');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -23,11 +24,11 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
+      const success = await login(email, password, role);
       if (success) {
         toast.success('Login successful!');
       } else {
-        toast.error('Invalid credentials. Try admin@hospital.com / admin123');
+        toast.error('Invalid credentials. Please check your email and password.');
       }
     } catch (error) {
       toast.error('Login failed. Please try again.');
@@ -35,6 +36,21 @@ const Login: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const getDemoCredentials = () => {
+    switch (role) {
+      case 'Admin':
+        return { email: 'admin@hospital.com', password: 'admin123' };
+      case 'Doctor':
+        return { email: 'doctor@hospital.com', password: 'doctor123' };
+      case 'Receptionist':
+        return { email: 'receptionist@hospital.com', password: 'reception123' };
+      default:
+        return { email: 'admin@hospital.com', password: 'admin123' };
+    }
+  };
+
+  const demoCredentials = getDemoCredentials();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-medical-purple to-medical-blue-light flex items-center justify-center p-4">
@@ -53,13 +69,29 @@ const Login: React.FC = () => {
 
           {/* Demo Credentials */}
           <div className="mb-6 p-3 bg-medical-blue-light rounded-lg">
-            <p className="text-sm text-blue-800 font-medium">Demo Credentials:</p>
-            <p className="text-sm text-blue-700">Email: admin@hospital.com</p>
-            <p className="text-sm text-blue-700">Password: admin123</p>
+            <p className="text-sm text-blue-800 font-medium">Demo Credentials for {role}:</p>
+            <p className="text-sm text-blue-700">Email: {demoCredentials.email}</p>
+            <p className="text-sm text-blue-700">Password: {demoCredentials.password}</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
+                Select Role
+              </label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
+              >
+                <option value="Admin">Admin</option>
+                <option value="Doctor">Doctor</option>
+                <option value="Receptionist">Receptionist</option>
+              </select>
+            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address

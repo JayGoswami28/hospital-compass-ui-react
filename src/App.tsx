@@ -12,6 +12,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import RoleManagement from "./pages/RoleManagement";
 import VaccineManagement from "./pages/VaccineManagement";
+import SlotManagement from "./pages/SlotManagement";
 import BedManagement from "./pages/BedManagement";
 import Receptionist from "./pages/Receptionist";
 import UserManagement from "./pages/UserManagement";
@@ -51,6 +52,11 @@ const App = () => (
             <Route path="/vaccines" element={
               <ProtectedRoute>
                 <VaccineManagement />
+              </ProtectedRoute>
+            } />
+            <Route path="/slots" element={
+              <ProtectedRoute>
+                <SlotManagement />
               </ProtectedRoute>
             } />
             <Route path="/beds" element={

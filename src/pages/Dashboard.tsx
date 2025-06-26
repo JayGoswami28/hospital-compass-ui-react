@@ -5,8 +5,10 @@ import Layout from '../components/Layout/Layout';
 import Table from '../components/Common/Table';
 import Card from '../components/Common/Card';
 import { mockPatients } from '../data/mockData';
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard: React.FC = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;
@@ -48,31 +50,52 @@ const Dashboard: React.FC = () => {
     // Implement patient details modal or navigation
   };
 
+  const getPageTitle = () => {
+    switch (user?.role) {
+      case 'Admin':
+        return 'Admin Dashboard';
+      case 'Doctor':
+        return 'Doctor Dashboard';
+      case 'Receptionist':
+        return 'Receptionist Dashboard';
+      default:
+        return 'Dashboard';
+    }
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
+        {/* Page Title */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">{getPageTitle()}</h1>
+          <div className="text-sm text-gray-600">
+            Welcome back, {user?.name}!
+          </div>
+        </div>
+
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-medical-blue">156</div>
-            <div className="text-gray-600">Total Patients</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          <Card className="text-center p-4">
+            <div className="text-2xl font-bold text-medical-blue mb-1">156</div>
+            <div className="text-gray-600 text-sm">Total Patients</div>
           </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-green-600">89</div>
-            <div className="text-gray-600">Appointments Today</div>
+          <Card className="text-center p-4">
+            <div className="text-2xl font-bold text-green-600 mb-1">89</div>
+            <div className="text-gray-600 text-sm">Appointments Today</div>
           </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-orange-600">12</div>
-            <div className="text-gray-600">Pending Reports</div>
+          <Card className="text-center p-4">
+            <div className="text-2xl font-bold text-orange-600 mb-1">12</div>
+            <div className="text-gray-600 text-sm">Pending Reports</div>
           </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-red-600">3</div>
-            <div className="text-gray-600">Emergency Cases</div>
+          <Card className="text-center p-4">
+            <div className="text-2xl font-bold text-red-600 mb-1">3</div>
+            <div className="text-gray-600 text-sm">Emergency Cases</div>
           </Card>
         </div>
 
         {/* Patient Records */}
-        <Card title="Patient Records">
+        <Card title="Recent Patient Records">
           {/* Search and Filter */}
           <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between">
             <div className="relative flex-1 max-w-md">
@@ -93,14 +116,16 @@ const Dashboard: React.FC = () => {
           </div>
 
           {/* Table */}
-          <Table 
-            columns={columns}
-            data={currentPatients}
-            onView={handleView}
-          />
+          <div className="overflow-x-auto">
+            <Table 
+              columns={columns}
+              data={currentPatients}
+              onView={handleView}
+            />
+          </div>
 
           {/* Pagination */}
-          <div className="mt-4 flex justify-between items-center">
+          <div className="mt-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="text-sm text-gray-600">
               Showing {startIndex + 1}-{Math.min(endIndex, filteredPatients.length)} of {filteredPatients.length} results
             </div>
