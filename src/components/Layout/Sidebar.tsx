@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { 
@@ -56,10 +55,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       
       {/* Sidebar */}
       <div className={`
-        fixed left-0 top-0 h-full bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out
+        fixed left-0 top-0 h-screen bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto
-        w-64
+        lg:translate-x-0 lg:relative lg:z-auto lg:h-screen
+        w-64 flex-shrink-0
       `}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">

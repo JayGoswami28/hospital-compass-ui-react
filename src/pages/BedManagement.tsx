@@ -1,239 +1,252 @@
-
 import React, { useState } from 'react';
-import { Plus, UserPlus, UserMinus } from 'lucide-react';
+import { ChevronLeft, Plus, Edit, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
-import Card from '../components/Common/Card';
-import { mockBeds } from '../data/mockData';
+import BedModal from '../components/Modals/BedModal';
 
 const BedManagement: React.FC = () => {
-  const [beds, setBeds] = useState(mockBeds);
-  const [showForm, setShowForm] = useState(false);
-  const [selectedBed, setSelectedBed] = useState<any>(null);
-  const [actionType, setActionType] = useState<'assign' | 'release'>('assign');
-  const [formData, setFormData] = useState({ patientName: '' });
-  const [statusFilter, setStatusFilter] = useState('All');
+  const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingBed, setEditingBed] = useState<any>(null);
 
-  const filteredBeds = beds.filter(bed => 
-    statusFilter === 'All' || bed.status === statusFilter
-  );
+  // Mock bed data with updated field names
+  const [beds, setBeds] = useState([
+    {
+      id: 1,
+      name: 'Bed 101',
+      bedDescription: 'Deluxe Room with AC',
+      price: 1000,
+      status: 'Available'
+    },
+    {
+      id: 2,
+      name: 'Bed 102',
+      bedDescription: 'Corner Room with Window View',
+      price: 1200,
+      status: 'Occupied',
+      patientName: 'Tiya Singh',
+      patientId: '150624',
+      admitDate: '15-06-2024'
+    },
+    {
+      id: 3,
+      name: 'Bed 103',
+      bedDescription: 'Corner Room with Window View',
+      price: 1200,
+      status: 'Available'
+    },
+    {
+      id: 4,
+      name: 'Bed 104',
+      bedDescription: 'Deluxe Room with AC',
+      price: 1200,
+      status: 'Occupied',
+      patientName: 'Raj Patel',
+      patientId: '150624',
+      admitDate: '15-06-2024'
+    },
+    {
+      id: 5,
+      name: 'Bed 105',
+      bedDescription: 'Corner Room with Window View',
+      price: 1200,
+      status: 'Occupied'
+    },
+    {
+      id: 6,
+      name: 'Bed 106',
+      bedDescription: 'Deluxe Room with AC',
+      price: 1200,
+      status: 'Available'
+    },
+    {
+      id: 7,
+      name: 'Bed 107',
+      bedDescription: 'Corner Room with Window View',
+      price: 1200,
+      status: 'Occupied'
+    },
+    {
+      id: 8,
+      name: 'Bed 108',
+      bedDescription: 'Deluxe Room with AC',
+      price: 1200,
+      status: 'Available'
+    }
+  ]);
 
-  const handleAction = (bed: any, action: 'assign' | 'release') => {
-    setSelectedBed(bed);
-    setActionType(action);
-    setShowForm(true);
-    if (action === 'release') {
-      setFormData({ patientName: '' });
+  const handleAddBed = () => {
+    setEditingBed(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEditBed = (bed: any) => {
+    setEditingBed(bed);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteBed = (bedId: number) => {
+    if (window.confirm('Are you sure you want to delete this bed?')) {
+      setBeds(beds.filter(bed => bed.id !== bedId));
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setBeds(beds.map(bed => {
-      if (bed.id === selectedBed.id) {
-        if (actionType === 'assign') {
-          return {
-            ...bed,
-            status: 'Occupied',
-            patientName: formData.patientName,
-            assignedDate: new Date().toISOString().split('T')[0]
-          };
-        } else {
-          return {
-            ...bed,
-            status: 'Available',
-            patientName: '',
-            assignedDate: ''
-          };
-        }
-      }
-      return bed;
-    }));
-    
-    setFormData({ patientName: '' });
-    setShowForm(false);
-    setSelectedBed(null);
+  const handleSaveBed = (bedData: any) => {
+    if (editingBed) {
+      setBeds(beds.map(bed => 
+        bed.id === editingBed.id ? { ...bed, ...bedData } : bed
+      ));
+    } else {
+      const newBed = {
+        id: Math.max(...beds.map(b => b.id)) + 1,
+        ...bedData
+      };
+      setBeds([...beds, newBed]);
+    }
+    setIsModalOpen(false);
+    setEditingBed(null);
   };
+
+  const BedIcon = () => (
+    <svg
+      width="48"
+      height="48"
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="mx-auto mb-4"
+    >
+      <rect x="6" y="20" width="36" height="20" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+      <rect x="4" y="16" width="4" height="8" rx="1" stroke="currentColor" strokeWidth="2" fill="none"/>
+      <rect x="40" y="16" width="4" height="8" rx="1" stroke="currentColor" strokeWidth="2" fill="none"/>
+      <line x1="6" y1="28" x2="42" y2="28" stroke="currentColor" strokeWidth="2"/>
+      <circle cx="10" cy="12" r="3" stroke="currentColor" strokeWidth="2" fill="none"/>
+      <line x1="16" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2"/>
+    </svg>
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Available': return 'bg-green-100 text-green-800';
-      case 'Occupied': return 'bg-red-100 text-red-800';
-      case 'Maintenance': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Available':
+        return 'bg-green-100 text-green-800';
+      case 'Occupied':
+        return 'bg-orange-100 text-orange-800';
+      case 'Maintenance':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getBedIconColor = (status: string) => {
+    switch (status) {
+      case 'Available':
+        return 'text-blue-600';
+      case 'Occupied':
+        return 'text-purple-400';
+      case 'Maintenance':
+        return 'text-red-500';
+      default:
+        return 'text-gray-500';
     }
   };
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Bed Management</h1>
-          <div className="flex items-center space-x-4">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-            >
-              <option value="All">All Beds</option>
-              <option value="Available">Available</option>
-              <option value="Occupied">Occupied</option>
-              <option value="Maintenance">Maintenance</option>
-            </select>
-          </div>
+      <div className="min-h-screen bg-gray-50 p-6">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 mr-1" />
+            Back
+          </button>
+          
+          <h1 className="text-3xl font-semibold text-indigo-600">Bed Management</h1>
+          
+          <button
+            onClick={handleAddBed}
+            className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Add
+          </button>
         </div>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {beds.filter(b => b.status === 'Available').length}
+        {/* Bed Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {beds.map((bed) => (
+            <div key={bed.id} className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 relative">
+              {/* Action Buttons */}
+              <div className="absolute top-4 right-4 flex space-x-2">
+                <button
+                  onClick={() => handleEditBed(bed)}
+                  className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                >
+                  <Edit className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => handleDeleteBed(bed.id)}
+                  className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Bed Icon */}
+              <div className={getBedIconColor(bed.status)}>
+                <BedIcon />
+              </div>
+
+              {/* Status Badge */}
+              <div className="flex justify-center mb-4">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(bed.status)}`}>
+                  {bed.status}
+                </span>
+              </div>
+
+              {/* Bed Info */}
+              <div className="text-center">
+                <h3 className="font-semibold text-gray-900 mb-2">{bed.bedDescription}</h3>
+                <p className="text-2xl font-bold text-indigo-600 mb-4">₹{bed.price}</p>
+
+                {/* Patient Info for Occupied Beds */}
+                {bed.status === 'Occupied' && bed.patientName && (
+                  <div className="bg-gray-50 rounded-lg p-3 text-sm space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Patient Name:</span>
+                      <span className="font-medium">{bed.patientName}</span>
+                    </div>
+                    {bed.patientId && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">ID:</span>
+                        <span className="font-medium">{bed.patientId}</span>
+                      </div>
+                    )}
+                    {bed.admitDate && (
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Admit Date:</span>
+                        <span className="font-medium">{bed.admitDate}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-            <div className="text-gray-600">Available Beds</div>
-          </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-red-600">
-              {beds.filter(b => b.status === 'Occupied').length}
-            </div>
-            <div className="text-gray-600">Occupied Beds</div>
-          </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-yellow-600">
-              {beds.filter(b => b.status === 'Maintenance').length}
-            </div>
-            <div className="text-gray-600">Under Maintenance</div>
-          </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-medical-blue">
-              {beds.length}
-            </div>
-            <div className="text-gray-600">Total Beds</div>
-          </Card>
+          ))}
         </div>
 
-        {showForm && (
-          <Card title={actionType === 'assign' ? 'Assign Bed' : 'Release Bed'}>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Room Number
-                </label>
-                <input
-                  type="text"
-                  value={selectedBed?.roomNumber}
-                  disabled
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
-                />
-              </div>
-              {actionType === 'assign' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Patient Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.patientName}
-                    onChange={(e) => setFormData({ patientName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-                    placeholder="Enter patient name"
-                  />
-                </div>
-              )}
-              <div className="flex space-x-4">
-                <button
-                  type="submit"
-                  className="bg-medical-blue text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                >
-                  {actionType === 'assign' ? 'Assign Bed' : 'Release Bed'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowForm(false);
-                    setSelectedBed(null);
-                    setFormData({ patientName: '' });
-                  }}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </Card>
+        {/* Bed Modal */}
+        {isModalOpen && (
+          <BedModal
+            bed={editingBed}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveBed}
+          />
         )}
-
-        <Card title="Bed Status">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Bed ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Room Number
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Patient Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Assigned Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredBeds.map((bed) => (
-                  <tr key={bed.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      B{bed.id.toString().padStart(3, '0')}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {bed.roomNumber}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(bed.status)}`}>
-                        {bed.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {bed.patientName || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {bed.assignedDate || '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                      {bed.status === 'Available' ? (
-                        <button
-                          onClick={() => handleAction(bed, 'assign')}
-                          className="text-green-600 hover:text-green-800 flex items-center space-x-1"
-                          title="Assign bed"
-                        >
-                          <UserPlus className="w-4 h-4" />
-                          <span>Assign</span>
-                        </button>
-                      ) : bed.status === 'Occupied' ? (
-                        <button
-                          onClick={() => handleAction(bed, 'release')}
-                          className="text-red-600 hover:text-red-800 flex items-center space-x-1"
-                          title="Release bed"
-                        >
-                          <UserMinus className="w-4 h-4" />
-                          <span>Release</span>
-                        </button>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
       </div>
     </Layout>
   );

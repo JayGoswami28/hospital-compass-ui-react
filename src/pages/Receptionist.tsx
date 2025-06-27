@@ -1,197 +1,312 @@
-
 import React, { useState } from 'react';
-import { Search, UserCheck, Plus } from 'lucide-react';
+import { Search, User } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
-import Card from '../components/Common/Card';
-import { mockAppointments } from '../data/mockData';
 
 const Receptionist: React.FC = () => {
-  const [appointments, setAppointments] = useState([
-    ...mockAppointments,
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState({
+    opd: false,
+    indoor: false,
+    vaccination: false
+  });
+  const [dateRange, setDateRange] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Mock patient visits data
+  const [patientVisits] = useState([
     {
-      id: 4,
-      patientName: 'David Wilson',
-      doctorName: 'Dr. Sarah Wilson',
-      date: '2024-06-26',
-      time: '9:00 AM',
-      type: 'Check-in',
-      status: 'Waiting'
+      id: '140720',
+      patientName: 'Tiya Rameshbhai Shama',
+      address: 'Surat',
+      phoneNo: '9876543210',
+      age: '4Y 11M 13D',
+      type: 'OPD',
+      appointmentTime: '10:00 AM'
+    },
+    {
+      id: '150622',
+      patientName: 'Raj Kumar Patel',
+      address: 'Ahmedabad',
+      phoneNo: '9876543211',
+      age: '25Y 6M 8D',
+      type: 'Indoor',
+      appointmentTime: '11:30 AM'
+    },
+    {
+      id: '280821',
+      patientName: 'Priya Shah',
+      address: 'Vadodara',
+      phoneNo: '9876543212',
+      age: '32Y 2M 15D',
+      type: 'Vaccination',
+      appointmentTime: '2:00 PM'
+    },
+    {
+      id: '120923',
+      patientName: 'Amit Joshi',
+      address: 'Rajkot',
+      phoneNo: '9876543213',
+      age: '28Y 9M 22D',
+      type: 'OPD',
+      appointmentTime: '3:30 PM'
+    },
+    {
+      id: '050224',
+      patientName: 'Neha Desai',
+      address: 'Surat',
+      phoneNo: '9876543214',
+      age: '45Y 3M 7D',
+      type: 'Indoor',
+      appointmentTime: '9:00 AM'
+    },
+    {
+      id: '180324',
+      patientName: 'Kiran Modi',
+      address: 'Gandhinagar',
+      phoneNo: '9876543215',
+      age: '35Y 8M 12D',
+      type: 'Vaccination',
+      appointmentTime: '4:00 PM'
+    },
+    {
+      id: '220424',
+      patientName: 'Sanjay Parmar',
+      address: 'Bhavnagar',
+      phoneNo: '9876543216',
+      age: '52Y 1M 9D',
+      type: 'OPD',
+      appointmentTime: '10:30 AM'
+    },
+    {
+      id: '110524',
+      patientName: 'Kavita Sharma',
+      address: 'Junagadh',
+      phoneNo: '9876543217',
+      age: '29Y 11M 18D',
+      type: 'Indoor',
+      appointmentTime: '1:00 PM'
+    },
+    {
+      id: '030624',
+      patientName: 'Rohit Verma',
+      address: 'Anand',
+      phoneNo: '9876543218',
+      age: '41Y 6M 25D',
+      type: 'OPD',
+      appointmentTime: '11:00 AM'
+    },
+    {
+      id: '250624',
+      patientName: 'Sunita Agarwal',
+      address: 'Mehsana',
+      phoneNo: '9876543219',
+      age: '38Y 4M 3D',
+      type: 'Vaccination',
+      appointmentTime: '2:30 PM'
+    },
+    {
+      id: '070724',
+      patientName: 'Vikram Singh',
+      address: 'Palanpur',
+      phoneNo: '9876543220',
+      age: '33Y 7M 14D',
+      type: 'Indoor',
+      appointmentTime: '9:30 AM'
+    },
+    {
+      id: '150824',
+      patientName: 'Meera Patel',
+      address: 'Nadiad',
+      phoneNo: '9876543221',
+      age: '26Y 10M 21D',
+      type: 'OPD',
+      appointmentTime: '3:00 PM'
+    },
+    {
+      id: '200924',
+      patientName: 'Arjun Mehta',
+      address: 'Bharuch',
+      phoneNo: '9876543222',
+      age: '47Y 5M 16D',
+      type: 'Vaccination',
+      appointmentTime: '4:30 PM'
+    },
+    {
+      id: '081024',
+      patientName: 'Disha Chokshi',
+      address: 'Morbi',
+      phoneNo: '9876543223',
+      age: '31Y 2M 28D',
+      type: 'Indoor',
+      appointmentTime: '10:00 AM'
     }
   ]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showCheckInForm, setShowCheckInForm] = useState(false);
-  const [checkInData, setCheckInData] = useState({
-    patientName: '',
-    contactNumber: '',
-    appointmentType: 'Walk-in'
+
+  // Filter patients based on search and filters
+  const filteredPatients = patientVisits.filter(patient => {
+    const matchesSearch = patient.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         patient.id.includes(searchTerm);
+    
+    const selectedFilterTypes = [];
+    if (selectedFilters.opd) selectedFilterTypes.push('OPD');
+    if (selectedFilters.indoor) selectedFilterTypes.push('Indoor');
+    if (selectedFilters.vaccination) selectedFilterTypes.push('Vaccination');
+    
+    const matchesFilter = selectedFilterTypes.length === 0 || selectedFilterTypes.includes(patient.type);
+    
+    return matchesSearch && matchesFilter;
   });
 
-  const todayAppointments = appointments.filter(apt => 
-    apt.date === '2024-06-26' || apt.date === '2024-06-27'
-  );
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredPatients.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const currentPatients = filteredPatients.slice(startIndex, endIndex);
 
-  const filteredAppointments = todayAppointments.filter(apt =>
-    apt.patientName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleCheckIn = (appointment: any) => {
-    setAppointments(appointments.map(apt => 
-      apt.id === appointment.id 
-        ? { ...apt, status: 'Checked In' }
-        : apt
-    ));
+  const handleFilterChange = (filterType: string) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [filterType]: !prev[filterType as keyof typeof prev]
+    }));
+    setCurrentPage(1);
   };
 
-  const handleQuickCheckIn = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newAppointment = {
-      id: appointments.length + 1,
-      patientName: checkInData.patientName,
-      doctorName: 'Dr. Available',
-      date: new Date().toISOString().split('T')[0],
-      time: new Date().toLocaleTimeString('en-US', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      }),
-      type: checkInData.appointmentType,
-      status: 'Checked In'
-    };
-    
-    setAppointments([...appointments, newAppointment]);
-    setCheckInData({ patientName: '', contactNumber: '', appointmentType: 'Walk-in' });
-    setShowCheckInForm(false);
+  const handleRowsPerPageChange = (newRowsPerPage: number) => {
+    setRowsPerPage(newRowsPerPage);
+    setCurrentPage(1);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Checked In': return 'bg-green-100 text-green-800';
-      case 'Waiting': return 'bg-yellow-100 text-yellow-800';
-      case 'Scheduled': return 'bg-blue-100 text-blue-800';
-      case 'Confirmed': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const handleViewIndoorPatient = (patient: any) => {
+    // Navigate to Indoor Patient Details view (like first image)
+    navigate('/indoor-patient-details', { state: { patient } });
+  };
+
+  const handleViewVaccinationPatient = (patient: any) => {
+    // Navigate to Vaccination Details view (like second image)
+    navigate('/vaccination-details', { state: { patient } });
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'OPD':
+        return 'bg-purple-100 text-purple-800';
+      case 'Indoor':
+        return 'bg-blue-100 text-blue-800';
+      case 'Vaccination':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Receptionist Dashboard</h1>
-          <button
-            onClick={() => setShowCheckInForm(true)}
-            className="bg-medical-blue text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center space-x-2"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Quick Check-in</span>
-          </button>
+      <div className="min-h-screen bg-gray-50">
+        {/* Header Section */}
+        <div className="bg-white p-8 text-center">
+          <h1 className="text-4xl font-bold text-indigo-600 mb-4">Welcome to Madhav Hospital</h1>
+          <p className="text-gray-600 text-lg">Please select your patient type</p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-blue-600">
-              {appointments.filter(a => a.status === 'Scheduled').length}
+        {/* Patient Type Selection Cards */}
+        <div className="bg-white px-8 pb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* New Patient Card */}
+            <div className="bg-white border-2 border-gray-200 rounded-lg p-8 text-center hover:border-indigo-300 cursor-pointer transition-colors">
+              <div className="text-indigo-600 mb-4">
+                <User className="w-16 h-16 mx-auto" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">New Patient</h3>
+              <p className="text-gray-600">First time visiting our hospital</p>
             </div>
-            <div className="text-gray-600">Scheduled Today</div>
-          </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {appointments.filter(a => a.status === 'Checked In').length}
+
+            {/* Old Patient Card */}
+            <div className="bg-white border-2 border-gray-200 rounded-lg p-8 text-center hover:border-indigo-300 cursor-pointer transition-colors">
+              <div className="text-indigo-600 mb-4">
+                <User className="w-16 h-16 mx-auto" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Old Patient</h3>
+              <p className="text-gray-600">Returning patient with records</p>
             </div>
-            <div className="text-gray-600">Checked In</div>
-          </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-yellow-600">
-              {appointments.filter(a => a.status === 'Waiting').length}
-            </div>
-            <div className="text-gray-600">Waiting</div>
-          </Card>
-          <Card className="text-center">
-            <div className="text-2xl font-bold text-purple-600">
-              {todayAppointments.length}
-            </div>
-            <div className="text-gray-600">Total Today</div>
-          </Card>
+          </div>
         </div>
 
-        {showCheckInForm && (
-          <Card title="Quick Check-in">
-            <form onSubmit={handleQuickCheckIn} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Patient Name
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={checkInData.patientName}
-                    onChange={(e) => setCheckInData({ ...checkInData, patientName: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-                    placeholder="Enter patient name"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Contact Number
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={checkInData.contactNumber}
-                    onChange={(e) => setCheckInData({ ...checkInData, contactNumber: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-                    placeholder="Enter contact number"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Appointment Type
-                  </label>
-                  <select
-                    value={checkInData.appointmentType}
-                    onChange={(e) => setCheckInData({ ...checkInData, appointmentType: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-medical-blue focus:border-transparent"
-                  >
-                    <option value="Walk-in">Walk-in</option>
-                    <option value="Emergency">Emergency</option>
-                    <option value="Consultation">Consultation</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex space-x-4">
-                <button
-                  type="submit"
-                  className="bg-medical-blue text-white px-4 py-2 rounded-md hover:bg-blue-700"
-                >
-                  Check In Patient
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCheckInForm(false);
-                    setCheckInData({ patientName: '', contactNumber: '', appointmentType: 'Walk-in' });
-                  }}
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </Card>
-        )}
-
-        <Card title="Today's Appointments">
-          <div className="mb-4">
-            <div className="relative max-w-md">
+        {/* Search and Filters Section */}
+        <div className="bg-white p-6 shadow-sm">
+          <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
+            {/* Search by Name */}
+            <div className="relative flex-1 min-w-[250px]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
                 type="text"
-                placeholder="Search patients..."
+                placeholder="Search by name"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-blue focus:border-transparent w-full"
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
               />
+            </div>
+
+            {/* Filter Checkboxes */}
+            <div className="flex items-center space-x-6">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selectedFilters.opd}
+                  onChange={() => handleFilterChange('opd')}
+                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-gray-700">OPD</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selectedFilters.indoor}
+                  onChange={() => handleFilterChange('indoor')}
+                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-gray-700">Indoor</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={selectedFilters.vaccination}
+                  onChange={() => handleFilterChange('vaccination')}
+                  className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span className="text-gray-700">Vaccination</span>
+              </label>
+            </div>
+
+            {/* Date Range */}
+            <div className="relative min-w-[250px]">
+              <input
+                type="text"
+                placeholder="DD/MM/YYYY ~ DD/MM/YYYY"
+                value={dateRange}
+                onChange={(e) => setDateRange(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full"
+              />
+            </div>
+
+            {/* Search Button */}
+            <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2">
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Patient Visits Table */}
+        <div className="bg-white m-6 rounded-lg shadow-sm">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-gray-900">Patients Visits</h2>
+              <span className="text-gray-600">Total Patients: {filteredPatients.length}</span>
             </div>
           </div>
 
@@ -200,60 +315,86 @@ const Receptionist: React.FC = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Patient ID
+                    Patient Id
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Patient Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Doctor
+                    Address
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Time
+                    Phone No.
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Age
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Type
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
+                    Appointment Time
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    Action
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredAppointments.map((appointment) => (
-                  <tr key={appointment.id}>
+                {currentPatients.map((patient) => (
+                  <tr key={patient.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      P{appointment.id.toString().padStart(3, '0')}
+                      {patient.id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {appointment.patientName}
+                      {patient.patientName}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {appointment.doctorName}
+                      {patient.address}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {appointment.time}
+                      {patient.phoneNo}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {appointment.type}
+                      {patient.age}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
-                        {appointment.status}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(patient.type)}`}>
+                        {patient.type}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                      {appointment.status !== 'Checked In' && (
-                        <button
-                          onClick={() => handleCheckIn(appointment)}
-                          className="text-green-600 hover:text-green-800 flex items-center space-x-1"
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {patient.appointmentTime}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {patient.type === 'Indoor' && (
+                        <button 
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleViewIndoorPatient(patient);
+                          }}
+                          className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors text-sm"
                         >
-                          <UserCheck className="w-4 h-4" />
-                          <span>Check-in</span>
+                          View
                         </button>
+                      )}
+                      {patient.type === 'Vaccination' && (
+                        <button 
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleViewVaccinationPatient(patient);
+                          }}
+                          className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors text-sm"
+                        >
+                          View
+                        </button>
+                      )}
+                      {patient.type === 'OPD' && (
+                        <span className="text-gray-400 text-sm">-</span>
                       )}
                     </td>
                   </tr>
@@ -261,7 +402,63 @@ const Receptionist: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </Card>
+
+          {/* Pagination */}
+          <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-600">Rows per page:</span>
+                <select 
+                  value={rowsPerPage}
+                  onChange={(e) => handleRowsPerPageChange(Number(e.target.value))}
+                  className="border border-gray-300 rounded px-2 py-1 text-sm"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+                <span className="text-sm text-gray-600">
+                  {startIndex + 1}-{Math.min(endIndex, filteredPatients.length)} of {filteredPatients.length}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  disabled={currentPage === 1}
+                  className="px-2 py-1 border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  ««
+                </button>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-2 py-1 border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  ‹
+                </button>
+                <span className="px-3 py-1 bg-indigo-600 text-white rounded">
+                  {currentPage}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-2 py-1 border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  ›
+                </button>
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  disabled={currentPage === totalPages}
+                  className="px-2 py-1 border border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  »»
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </Layout>
   );

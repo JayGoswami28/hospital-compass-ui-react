@@ -1,158 +1,122 @@
-
 import React, { useState } from 'react';
-import { Clock, Save } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
-import Card from '../components/Common/Card';
+import { Switch } from '../components/ui/switch';
 
 const SlotManagement: React.FC = () => {
-  const [slots, setSlots] = useState({
-    morning: {
-      '09:00': false,
-      '10:00': true,
-      '11:00': false,
-      '12:00': true
-    },
-    afternoon: {
-      '14:00': false,
-      '15:00': true,
-      '16:00': false,
-      '17:00': true,
-      '18:00': false
-    }
+  const navigate = useNavigate();
+  
+  const [morningSlots, setMorningSlots] = useState({
+    '10:00': true,
+    '10:30': true,
+    '11:00': true,
+    '11:30': true,
+    '12:00': true,
+    '12:30': true,
+    '01:00': true
   });
 
-  const handleSlotToggle = (shift: 'morning' | 'afternoon', time: string) => {
-    setSlots(prev => ({
+  const [afternoonSlots, setAfternoonSlots] = useState({
+    '05:00': true,
+    '05:30': true,
+    '06:00': true,
+    '06:30': true,
+    '07:00': true,
+    '07:30': true,
+    '08:00': true
+  });
+
+  const handleMorningSlotToggle = (time: string) => {
+    setMorningSlots(prev => ({
       ...prev,
-      [shift]: {
-        ...prev[shift],
-        [time]: !prev[shift][time as keyof typeof prev[typeof shift]]
-      }
+      [time]: !prev[time as keyof typeof prev]
+    }));
+  };
+
+  const handleAfternoonSlotToggle = (time: string) => {
+    setAfternoonSlots(prev => ({
+      ...prev,
+      [time]: !prev[time as keyof typeof prev]
     }));
   };
 
   const handleSaveChanges = () => {
-    console.log('Saving slot changes:', slots);
-    // Here you would typically save to your backend
+    console.log('Saving slot changes:', { morningSlots, afternoonSlots });
     alert('Slot changes saved successfully!');
   };
 
-  const formatTime = (time: string) => {
-    const hour = parseInt(time.split(':')[0]);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-    return `${displayHour}:${time.split(':')[1]} ${ampm}`;
+  const formatMorningTime = (time: string) => {
+    if (time === '01:00') return '01:00 PM';
+    return `${time} AM`;
+  };
+
+  const formatAfternoonTime = (time: string) => {
+    return `${time} PM`;
   };
 
   return (
     <Layout>
-      <div className="space-y-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Slot Management</h1>
+        <div className="flex justify-between items-center mb-8">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 mr-1" />
+            Back
+          </button>
+          
           <button
             onClick={handleSaveChanges}
-            className="inline-flex items-center px-4 py-2 bg-medical-blue text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
           >
-            <Save className="w-4 h-4 mr-2" />
             Save Changes
           </button>
         </div>
 
-        {/* Morning Shift */}
-        <Card>
-          <div className="p-6">
-            <div className="flex items-center mb-6">
-              <Clock className="w-5 h-5 text-medical-blue mr-2" />
-              <h2 className="text-lg font-semibold text-gray-900">Morning Shift</h2>
-              <span className="ml-2 text-sm text-gray-500">(9:00 AM - 12:00 PM)</span>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Morning Shift */}
+          <div className="bg-white rounded-lg p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-indigo-600 mb-6">Morning Shift</h2>
             
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {Object.entries(slots.morning).map(([time, isActive]) => (
-                <div key={time} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <span className="font-medium text-gray-900">{formatTime(time)}</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isActive}
-                      onChange={() => handleSlotToggle('morning', time)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-medical-blue"></div>
-                  </label>
+            <div className="space-y-4">
+              {Object.entries(morningSlots).map(([time, isActive]) => (
+                <div key={time} className="flex items-center justify-between py-3">
+                  <span className="text-gray-700 font-medium">
+                    {formatMorningTime(time)}
+                  </span>
+                  <Switch
+                    checked={isActive}
+                    onCheckedChange={() => handleMorningSlotToggle(time)}
+                    className="data-[state=checked]:bg-indigo-600"
+                  />
                 </div>
               ))}
             </div>
           </div>
-        </Card>
 
-        {/* Afternoon Shift */}
-        <Card>
-          <div className="p-6">
-            <div className="flex items-center mb-6">
-              <Clock className="w-5 h-5 text-medical-blue mr-2" />
-              <h2 className="text-lg font-semibold text-gray-900">Afternoon Shift</h2>
-              <span className="ml-2 text-sm text-gray-500">(2:00 PM - 6:00 PM)</span>
-            </div>
+          {/* Afternoon Shift */}
+          <div className="bg-white rounded-lg p-6 shadow-sm">
+            <h2 className="text-xl font-semibold text-indigo-600 mb-6">Afternoon Shift</h2>
             
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
-              {Object.entries(slots.afternoon).map(([time, isActive]) => (
-                <div key={time} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <span className="font-medium text-gray-900">{formatTime(time)}</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isActive}
-                      onChange={() => handleSlotToggle('afternoon', time)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-medical-blue"></div>
-                  </label>
+            <div className="space-y-4">
+              {Object.entries(afternoonSlots).map(([time, isActive]) => (
+                <div key={time} className="flex items-center justify-between py-3">
+                  <span className="text-gray-700 font-medium">
+                    {formatAfternoonTime(time)}
+                  </span>
+                  <Switch
+                    checked={isActive}
+                    onCheckedChange={() => handleAfternoonSlotToggle(time)}
+                    className="data-[state=checked]:bg-indigo-600"
+                  />
                 </div>
               ))}
             </div>
           </div>
-        </Card>
-
-        {/* Summary */}
-        <Card title="Active Slots Summary">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-medium text-gray-900 mb-3">Morning Shift Active Slots</h3>
-              <div className="space-y-2">
-                {Object.entries(slots.morning)
-                  .filter(([, isActive]) => isActive)
-                  .map(([time]) => (
-                    <div key={time} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-gray-700">{formatTime(time)}</span>
-                    </div>
-                  ))}
-                {Object.entries(slots.morning).filter(([, isActive]) => isActive).length === 0 && (
-                  <p className="text-sm text-gray-500">No active slots</p>
-                )}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="font-medium text-gray-900 mb-3">Afternoon Shift Active Slots</h3>
-              <div className="space-y-2">
-                {Object.entries(slots.afternoon)
-                  .filter(([, isActive]) => isActive)
-                  .map(([time]) => (
-                    <div key={time} className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <span className="text-sm text-gray-700">{formatTime(time)}</span>
-                    </div>
-                  ))}
-                {Object.entries(slots.afternoon).filter(([, isActive]) => isActive).length === 0 && (
-                  <p className="text-sm text-gray-500">No active slots</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </Card>
+        </div>
       </div>
     </Layout>
   );

@@ -1,7 +1,7 @@
-
-import React from 'react';
-import { Search, Menu, Bell, User, LogOut } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Menu, User, LogOut, Settings, ChevronDown, UserCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -9,24 +9,41 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleProfile = () => {
+    setIsDropdownOpen(false);
+    navigate('/user-profile');
+  };
+
+  const handleChangePassword = () => {
+    setIsDropdownOpen(false);
+    navigate('/change-password');
+  };
+
+  const handleLogout = () => {
+    setIsDropdownOpen(false);
+    logout();
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
-      {/* Payment Summary Banner */}
-      <div className="bg-medical-purple px-4 py-2">
-        <div className="flex flex-wrap items-center justify-between text-sm">
-          <div className="flex items-center space-x-4 text-purple-800">
-            <span className="font-medium">Payment Summary:</span>
-            <span>Total: ₹5,400</span>
-            <span>Online: ₹2,470</span>
-            <span>Cash: ₹2,930</span>
-          </div>
-          <div className="flex items-center space-x-4 text-purple-700">
-            <span>Date Range: 01/06/2024 - 26/06/2024</span>
-          </div>
-        </div>
-      </div>
-
       {/* Main Header */}
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
@@ -38,42 +55,68 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             >
               <Menu className="w-5 h-5" />
             </button>
-            
-            {/* Search Bar */}
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search patients..."
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-medical-blue focus:border-transparent w-64"
-              />
-            </div>
           </div>
 
-          {/* Right Section */}
-          <div className="flex items-center space-x-4">
-            <button className="p-2 rounded-full hover:bg-gray-100 relative">
-              <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
-            </button>
-            
-            <div className="flex items-center space-x-2">
+          {/* Right Section - User Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
               <div className="w-8 h-8 bg-medical-blue rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-white" />
               </div>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium text-gray-700">{user?.name}</p>
-                <p className="text-xs text-gray-500">{user?.role}</p>
+              <div className="hidden md:block text-left">
+                <p className="text-sm font-medium text-gray-700">{user?.name || 'Demo User'}</p>
+                <p className="text-xs text-gray-500">{user?.role || 'Admin'}</p>
               </div>
-            </div>
-
-            <button
-              onClick={logout}
-              className="p-2 rounded-full hover:bg-gray-100 text-gray-600"
-              title="Logout"
-            >
-              <LogOut className="w-5 h-5" />
+              <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
+
+            {/* Dropdown Menu */}
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                {/* User Info */}
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-medical-blue rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{user?.name || 'Demo User'}</p>
+                      <p className="text-xs text-gray-500">demo@madhavhospital.com</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Menu Items */}
+                <div className="py-1">
+                  <button
+                    onClick={handleProfile}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <UserCircle className="w-4 h-4 mr-3" />
+                    Profile
+                  </button>
+                  
+                  <button
+                    onClick={handleChangePassword}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <Settings className="w-4 h-4 mr-3" />
+                    Change Password
+                  </button>
+                  
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 mr-3" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
