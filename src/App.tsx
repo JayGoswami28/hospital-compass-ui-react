@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import PatientDetails from "./pages/PatientDetails";
 import PatientSummary from "./pages/PatientSummary";
 import RoleManagement from "./pages/RoleManagement";
+import RolePermissions from "./pages/RolePermissions";
 import VaccineManagement from "./pages/VaccineManagement";
 import SlotManagement from "./pages/SlotManagement";
 import BedManagement from "./pages/BedManagement";
@@ -23,6 +24,8 @@ import UserProfile from "./pages/UserProfile";
 import ForgotPassword from "./pages/ForgotPassword";
 import ChangePassword from "./pages/ChangePassword";
 import NotFound from "./pages/NotFound";
+import IndoorPatientDetails from "./pages/IndoorPatientDetails";
+import VaccinationDetails from "./pages/VaccinationDetails";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +64,11 @@ const App = () => (
                 <RoleManagement />
               </ProtectedRoute>
             } />
+            <Route path="/role-permissions" element={
+              <ProtectedRoute>
+                <RolePermissions />
+              </ProtectedRoute>
+            } />
             <Route path="/vaccines" element={
               <ProtectedRoute>
                 <VaccineManagement />
@@ -94,6 +102,16 @@ const App = () => (
             <Route path="/profile" element={
               <ProtectedRoute>
                 <UserProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/indoor-patient-details" element={
+              <ProtectedRoute>
+                <IndoorPatientDetails />
+              </ProtectedRoute>
+            } />
+            <Route path="/vaccination-details" element={
+              <ProtectedRoute>
+                <VaccinationDetails />
               </ProtectedRoute>
             } />
             
