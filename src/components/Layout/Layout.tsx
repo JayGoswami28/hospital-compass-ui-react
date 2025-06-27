@@ -7,16 +7,34 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Default to open on desktop
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
 
   return (
-    <div className="min-h-screen bg-medical-gray flex">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="min-h-screen bg-gray-50 flex flex-col lg:flex-row">
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        isMobileOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
+        onToggle={toggleSidebar}
+      />
       
-      <div className="flex-1 flex flex-col">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <Header 
+          onMenuClick={toggleMobileSidebar}
+          onSidebarToggle={toggleSidebar}
+          sidebarOpen={sidebarOpen}
+        />
         
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 p-2 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden">
           {children}
         </main>
       </div>

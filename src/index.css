@@ -100,4 +100,66 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Responsive Typography */
+  html {
+    font-size: 14px;
+  }
+
+  @media (min-width: 640px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 16px;
+    }
+  }
+
+  @media (min-width: 1440px) {
+    html {
+      font-size: 18px;
+    }
+  }
+
+  /* Prevent horizontal scroll on small screens */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Responsive table improvements */
+  .table-responsive {
+    @apply min-w-full overflow-x-auto;
+  }
+
+  .table-responsive table {
+    @apply min-w-max sm:min-w-full;
+  }
+
+  /* Form responsive improvements */
+  .form-responsive {
+    @apply space-y-3 sm:space-y-4 md:space-y-6;
+  }
+
+  .form-responsive label {
+    @apply text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2;
+  }
+
+  .form-responsive input,
+  .form-responsive select,
+  .form-responsive textarea {
+    @apply text-sm sm:text-base;
+  }
+
+  /* Button responsive sizing */
+  .btn-responsive {
+    @apply px-3 py-2 sm:px-4 sm:py-2 md:px-6 md:py-3 text-sm sm:text-base;
+  }
+
+  /* Card responsive padding */
+  .card-responsive {
+    @apply p-3 sm:p-4 md:p-6 lg:p-8;
+  }
 }
