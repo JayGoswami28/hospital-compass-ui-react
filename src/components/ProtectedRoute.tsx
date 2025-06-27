@@ -20,7 +20,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   
   // Receptionist should only access receptionist pages
   if (user?.role === 'Receptionist') {
-    const allowedPaths = ['/receptionist', '/appointments', '/profile'];
+    const allowedPaths = ['/receptionist', '/appointments', '/profile', '/indoor-patient-details', '/vaccination-details'];
     if (!allowedPaths.includes(currentPath)) {
       return <Navigate to="/receptionist" replace />;
     }

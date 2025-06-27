@@ -153,71 +153,85 @@ const BedManagement: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-gray-50 p-3 sm:p-4 md:p-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-6 sm:mb-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
+            className="flex items-center text-gray-600 hover:text-gray-800 transition-colors text-sm sm:text-base"
           >
-            <ChevronLeft className="w-5 h-5 mr-1" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1" />
             Back
           </button>
           
-          <h1 className="text-3xl font-semibold text-indigo-600">Bed Management</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-indigo-600 order-first sm:order-none">Bed Management</h1>
           
           <button
             onClick={handleAddBed}
-            className="flex items-center bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+            className="flex items-center bg-indigo-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors font-medium text-sm sm:text-base"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
             Add
           </button>
         </div>
 
         {/* Bed Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6">
           {beds.map((bed) => (
-            <div key={bed.id} className="bg-white rounded-lg p-6 shadow-sm border border-gray-200 relative">
+            <div key={bed.id} className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200 relative">
               {/* Action Buttons */}
-              <div className="absolute top-4 right-4 flex space-x-2">
+              <div className="absolute top-2 sm:top-4 right-2 sm:right-4 flex space-x-1 sm:space-x-2">
                 <button
                   onClick={() => handleEditBed(bed)}
                   className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
                 <button
                   onClick={() => handleDeleteBed(bed.id)}
                   className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </div>
 
               {/* Bed Icon */}
               <div className={getBedIconColor(bed.status)}>
-                <BedIcon />
+                <svg
+                  width="32"
+                  height="32"
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="mx-auto mb-3 sm:mb-4 sm:w-12 sm:h-12"
+                >
+                  <rect x="6" y="20" width="36" height="20" rx="2" stroke="currentColor" strokeWidth="2" fill="none"/>
+                  <rect x="4" y="16" width="4" height="8" rx="1" stroke="currentColor" strokeWidth="2" fill="none"/>
+                  <rect x="40" y="16" width="4" height="8" rx="1" stroke="currentColor" strokeWidth="2" fill="none"/>
+                  <line x1="6" y1="28" x2="42" y2="28" stroke="currentColor" strokeWidth="2"/>
+                  <circle cx="10" cy="12" r="3" stroke="currentColor" strokeWidth="2" fill="none"/>
+                  <line x1="16" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="2"/>
+                </svg>
               </div>
 
               {/* Status Badge */}
-              <div className="flex justify-center mb-4">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(bed.status)}`}>
+              <div className="flex justify-center mb-3 sm:mb-4">
+                <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${getStatusColor(bed.status)}`}>
                   {bed.status}
                 </span>
               </div>
 
               {/* Bed Info */}
               <div className="text-center">
-                <h3 className="font-semibold text-gray-900 mb-2">{bed.bedDescription}</h3>
-                <p className="text-2xl font-bold text-indigo-600 mb-4">₹{bed.price}</p>
+                <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base line-clamp-2">{bed.bedDescription}</h3>
+                <p className="text-xl sm:text-2xl font-bold text-indigo-600 mb-3 sm:mb-4">₹{bed.price}</p>
 
                 {/* Patient Info for Occupied Beds */}
                 {bed.status === 'Occupied' && bed.patientName && (
-                  <div className="bg-gray-50 rounded-lg p-3 text-sm space-y-1">
+                  <div className="bg-gray-50 rounded-lg p-2 sm:p-3 text-xs sm:text-sm space-y-1">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Patient Name:</span>
-                      <span className="font-medium">{bed.patientName}</span>
+                      <span className="font-medium truncate ml-2">{bed.patientName}</span>
                     </div>
                     {bed.patientId && (
                       <div className="flex justify-between">
